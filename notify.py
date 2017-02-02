@@ -61,10 +61,29 @@ while True:
 			name = str(full_name).split("u'full_name': u'")[1].split("',")[0].decode('unicode-escape')
 			bot.sendMessage(owner_id,'新訊息！\n'+name.encode('utf-8')+' '+feeling.encode('utf-8')+'：\n'+str(content.encode('utf-8')))
 """
-正在 = is
+: = :
 玩 = plays
-
-
+愛 = loves
+喜歡 = likes
+分享 = shares
+給 = gives
+討厭 = hates
+想要 = wants
+期待 = wishes
+需要 = needs
+打算 = wills
+希望 = hopes
+問 = asks
+已經 = hates
+曾經 = wants
+好奇 = wonders
+覺得 = feels
+想 = thinks
+畫 = draws
+正在 = is
+說 = says
+寫 = writes
+偷偷說 = whispers
 
 
 			if content.find("hello") != -1:
