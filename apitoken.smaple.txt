@@ -1,7 +1,8 @@
 [bottoken]
 token =
+id = 
 [plurk]
 appkey =
 appsecret =
 usertoken =
-usersecret = 
+usersecret =
