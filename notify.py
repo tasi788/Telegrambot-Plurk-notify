@@ -6,6 +6,7 @@ import json
 import urllib2
 import telepot
 import time
+import pprint
 from plurk_oauth import PlurkAPI
 from ConfigParser import SafeConfigParser
 parser = SafeConfigParser()
@@ -24,6 +25,7 @@ jsonp_re = re.compile('CometChannel.scriptCallback\((.+)\);\s*');
 new_offset = -1
 
 def handle(msg):
+	#debug用
 	#pprint.pprint(msg)
 	content_type, chat_type, chat_id = telepot.glance(msg)
 	chat_id = msg['chat']['id']
@@ -36,11 +38,14 @@ def handle(msg):
 owner_id = int(parser.get('bottoken','id'))
 bot_apitoken = parser.get('bottoken', 'token')
 bot = telepot.Bot(bot_apitoken)
-bot.message_loop(handle)
+#bot.message_loop(handle)
 print '監聽中 ...'
 
 while True:
 	#plurk.callAPI('/APP/Alerts/addAllAsFriends')
+	#if handle.msg()['text'] == '!':
+	#	print '!'
+	#handle(chat_id)
 	req = urllib2.urlopen(comet_channel % new_offset, timeout=80)
 	rawdata = req.read()
 	match = jsonp_re.match(rawdata)
@@ -49,43 +54,47 @@ while True:
 	data = json.loads(rawdata)
 	new_offset = data.get('new_offset', -1)
 	msgs = data.get('data')
+
 	if not msgs:
 		continue
 	for msg in msgs:
 		if msg.get('type') == 'new_plurk':
+			print msg.get('owner_id')
 			pid = msg.get('plurk_id')
 			content = msg.get('content_raw')
 			feeling = msg.get('qualifier')
-			full_name = plurk.callAPI('/APP/Timeline/getPlurk',
-								{'plurk_id': pid})
-			name = str(full_name).split("u'full_name': u'")[1].split("',")[0].decode('unicode-escape')
-			bot.sendMessage(owner_id,'新訊息！\n'+name.encode('utf-8')+' '+feeling.encode('utf-8')+'：\n'+str(content.encode('utf-8')))
+			plurk_userid = msg.get('user_id')
+			plurk_name = plurk.callAPI('/APP/Timeline/getPlurk',{'plurk_id': pid})['plurk_users'][str(plurk_userid)]['display_name']
+			emotion = {
+				':' : ':',
+				'plays' : '玩',
+				'loves' : '愛',
+				'likes' : '喜歡',
+				'shares' : '分享',
+				'gives' : '給',
+				'hates' : '討厭',
+				'wants' : '想要',
+				'wishes' : '期待',
+				'needs' : '需要',
+				'wills' : '打算',
+				'hopes' : '希望',
+				'asks' : '問',
+				'hates' : '已經',
+				'wants' : '曾經',
+				'wonders' : '好奇',
+				'feels' : '覺得',
+				'thinks' : '想',
+				'draws' : '畫',
+				'is' : '正在',
+				'says' : '說',
+				'writes' : '寫',
+				'whispers' : '偷偷說',
+				'freestyle' : ':'
+			}
+
+			bot.sendMessage(owner_id,'新訊息！\n'+plurk_name.encode('utf-8')+' '+emotion[feeling]+'\n'+str(content.encode('utf-8')))
+			print '新訊息！\n'+plurk_name.encode('utf-8')+' '+emotion[feeling]+'\n'+str(content.encode('utf-8'))
 """
-: = :
-玩 = plays
-愛 = loves
-喜歡 = likes
-分享 = shares
-給 = gives
-討厭 = hates
-想要 = wants
-期待 = wishes
-需要 = needs
-打算 = wills
-希望 = hopes
-問 = asks
-已經 = hates
-曾經 = wants
-好奇 = wonders
-覺得 = feels
-想 = thinks
-畫 = draws
-正在 = is
-說 = says
-寫 = writes
-偷偷說 = whispers
-
-
 			if content.find("hello") != -1:
 				plurk.callAPI('/APP/Responses/responseAdd',
 							  {'plurk_id': pid,
