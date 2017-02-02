@@ -1,0 +1,7 @@
+[bottoken]
+token =
+[plurk]
+appkey =
+appsecret =
+usertoken =
+usersecret = 
