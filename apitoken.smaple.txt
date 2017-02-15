@@ -1,4 +1,4 @@
-[bottoken]
+[telegram]
 token =
 id = 
 [plurk]
